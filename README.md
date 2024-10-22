@@ -6,7 +6,7 @@ Frontend:
 
 - UI: Figma + TypeScript/JS
 - Game design: Blender
-- Game: P5.js
+- Game: P5.js?
 
 ---
 
