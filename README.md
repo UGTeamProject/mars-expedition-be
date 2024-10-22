@@ -13,4 +13,4 @@ Frontend:
 Backend:
 
 - DB: SQLite
-- API: Python + FastAPI
+- API: Python with FastAPI
