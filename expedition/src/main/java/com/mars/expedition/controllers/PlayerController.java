@@ -18,8 +18,6 @@ public class PlayerController {
 
     public PlayerController(PlayerService playerService) {this.playerService = playerService;}
 
-    
-
     @PostMapping("/api/player")
     ResponseEntity<PlayerDTO> addPlayer(@RequestBody PlayerDTO playerDTO) {
         return new ResponseEntity<>(playerService.addPlayer(playerDTO), HttpStatus.CREATED);
