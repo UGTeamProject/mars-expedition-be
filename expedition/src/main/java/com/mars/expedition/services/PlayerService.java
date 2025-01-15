@@ -5,6 +5,7 @@ import com.mars.expedition.domain.DTO.PlayerDTO;
 import com.mars.expedition.domain.model.Player;
 import com.mars.expedition.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -32,8 +33,27 @@ public class PlayerService {
         }
         return Optional.empty();
     }
-    public void deletePlayer(Long id ) {
-        playerRepository.deleteById(id);
+
+    @Transactional
+    public Optional<PlayerDTO> updatePlayer(Long id, PlayerDTO playerDTO){
+        Optional<Player> existingPlayer = playerRepository.findById(id);
+        if (existingPlayer.isPresent()) {
+            Player player = existingPlayer.get();
+            player.setName(playerDTO.getName());
+            player.setPassword(player.getPassword());
+            return Optional.of(convertEntityToDTO(player));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<PlayerDTO> deletePlayer(Long id) {
+        Optional<Player> optionalPlayer = playerRepository.findById(id);
+        if (optionalPlayer.isPresent()) {
+            playerRepository.deleteById(id);
+            PlayerDTO playerDTO = convertEntityToDTO(optionalPlayer.get());
+            return Optional.of(playerDTO);
+        }
+        return Optional.empty();
     }
     public List<PlayerDTO> getAll() {
         Iterable<Player> allPlayers = playerRepository.findAll();
