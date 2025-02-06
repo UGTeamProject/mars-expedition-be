@@ -6,6 +6,8 @@ import com.mars.expedition.domain.model.Player;
 import com.mars.expedition.repository.PlayerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
@@ -14,17 +16,24 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
 
+@RequiredArgsConstructor
 @Service
 public class PlayerService {
 
-    final PlayerRepository playerRepository;
+    private final PlayerRepository playerRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public PlayerService(PlayerRepository playerRepository) {this.playerRepository = playerRepository;}
+//    public PlayerService(PlayerRepository playerRepository) {this.playerRepository = playerRepository;}
 
     public PlayerDTO addPlayer(PlayerDTO playerDTO) {
+        if(playerRepository.existsByUsername(playerDTO.getUsername()) || playerRepository.existsByEmail(playerDTO.getEmail())) {
+            throw new RuntimeException("Account with this Username or email already exists");
+        }
         Player player = convertDTOToEntity(playerDTO);
+        player.setPassword(passwordEncoder.encode(player.getPassword()));
         return convertEntityToDTO(playerRepository.save(player));
     }
+
     public Optional<PlayerDTO> findPlayerById(Long id) {
         Optional<Player> optionalPlayer = playerRepository.findById(id);
         if (optionalPlayer.isPresent()) {
@@ -39,8 +48,9 @@ public class PlayerService {
         Optional<Player> existingPlayer = playerRepository.findById(id);
         if (existingPlayer.isPresent()) {
             Player player = existingPlayer.get();
-            player.setName(playerDTO.getName());
-            player.setPassword(player.getPassword());
+            player.setUsername(playerDTO.getUsername());
+            player.setPassword(passwordEncoder.encode(playerDTO.getPassword()));
+            playerRepository.save(player);
             return Optional.of(convertEntityToDTO(player));
         }
         return Optional.empty();
@@ -63,12 +73,12 @@ public class PlayerService {
 
 
     public Player convertDTOToEntity(PlayerDTO playerDTO) {
-        return new Player(playerDTO.getName());
+        return new Player(playerDTO.getUsername());
     }
     public PlayerDTO convertEntityToDTO(Player player) {
         PlayerDTO playerDTO = new PlayerDTO();
         playerDTO.setId(player.getId());
-        playerDTO.setName(player.getName());
+        playerDTO.setUsername(player.getUsername());
         return  playerDTO;
     }
 }

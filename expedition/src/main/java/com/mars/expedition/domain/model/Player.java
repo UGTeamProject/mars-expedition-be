@@ -13,10 +13,13 @@ public class Player {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
+    @Column(unique = true)
+    private String username;
+    @Column(unique = true)
+    private String email;
     private String password;
 
-    public Player(String name) {
-        this.name = name;
+    public Player(String username) {
+        this.username = username;
     }
 }
