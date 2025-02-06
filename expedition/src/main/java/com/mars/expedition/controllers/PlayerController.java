@@ -3,6 +3,8 @@ package com.mars.expedition.controllers;
 import com.mars.expedition.domain.DTO.LoginDTO;
 import com.mars.expedition.domain.DTO.PlayerDTO;
 import com.mars.expedition.domain.model.Player;
+import com.mars.expedition.repository.PlayerRepository;
+
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import com.mars.expedition.services.PlayerService;
@@ -12,10 +14,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 @RequiredArgsConstructor
 @RestController
@@ -23,10 +27,8 @@ import java.util.Optional;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final PlayerRepository playerRepository;
     private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
-
-//    public PlayerController(PlayerService playerService) {this.playerService = playerService;}
 
     @PostMapping
     ResponseEntity<PlayerDTO> addPlayer(@RequestBody PlayerDTO playerDTO) {
@@ -40,7 +42,14 @@ public class PlayerController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return ResponseEntity.ok("Login successful");
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        Player player = playerRepository.findByUsernameOrEmail(loginDTO.getUsernameOrEmail(), loginDTO.getUsernameOrEmail())
+            .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("username", player.getUsername());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")

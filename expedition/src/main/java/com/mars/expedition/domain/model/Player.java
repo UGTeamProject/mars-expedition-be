@@ -1,6 +1,8 @@
 package com.mars.expedition.domain.model;
 
 
+import javax.print.DocFlavor.STRING;
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +21,9 @@ public class Player {
     private String email;
     private String password;
 
-    public Player(String username) {
+    public Player(String username, String email, String password) {
         this.username = username;
+        this.email = email;
+        this.password = password;
     }
 }
