@@ -1,17 +1,13 @@
 package com.mars.expedition.services;
 
-import com.mars.expedition.exceptions.*;
 import com.mars.expedition.domain.DTO.PlayerDTO;
 import com.mars.expedition.domain.model.Player;
 import com.mars.expedition.repository.PlayerRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.text.MessageFormat;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.StreamSupport;
@@ -23,14 +19,14 @@ public class PlayerService {
     private final PlayerRepository playerRepository;
     private final PasswordEncoder passwordEncoder;
 
-//    public PlayerService(PlayerRepository playerRepository) {this.playerRepository = playerRepository;}
-
     public PlayerDTO addPlayer(PlayerDTO playerDTO) {
         if(playerRepository.existsByUsername(playerDTO.getUsername()) || playerRepository.existsByEmail(playerDTO.getEmail())) {
             throw new RuntimeException("Account with this Username or email already exists");
         }
-        Player player = convertDTOToEntity(playerDTO);
-        player.setPassword(passwordEncoder.encode(player.getPassword()));
+        Player player = new Player();
+        player.setUsername(playerDTO.getUsername());
+        player.setEmail(playerDTO.getEmail());
+        player.setPassword(passwordEncoder.encode(playerDTO.getPassword()));
         return convertEntityToDTO(playerRepository.save(player));
     }
 
@@ -73,12 +69,14 @@ public class PlayerService {
 
 
     public Player convertDTOToEntity(PlayerDTO playerDTO) {
-        return new Player(playerDTO.getUsername());
+        return new Player(playerDTO.getUsername(), playerDTO.getEmail(), playerDTO.getPassword());
     }
     public PlayerDTO convertEntityToDTO(Player player) {
         PlayerDTO playerDTO = new PlayerDTO();
         playerDTO.setId(player.getId());
         playerDTO.setUsername(player.getUsername());
+        playerDTO.setEmail(player.getEmail());
+        playerDTO.setPassword(player.getPassword());
         return  playerDTO;
     }
 }

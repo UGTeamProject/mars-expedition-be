@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 
 @Configuration
 public class SecurityConfig {
@@ -33,11 +34,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/player/login", "/api/player").permitAll() // Allow login and registration without authentication
-                        .anyRequest().authenticated()  // All other endpoints need to be authenticated
-                )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT authentication filter
+            .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configurationSource(request -> {
+                CorsConfiguration config = new CorsConfiguration();
+                config.addAllowedOrigin("http://localhost:8081");
+                config.addAllowedHeader("*");
+                config.addAllowedMethod("*");
+                config.setAllowCredentials(true);
+                return config;
+            }))
+            .authorizeHttpRequests(auth -> auth
+                    .requestMatchers("/api/player/login", "/api/player").permitAll() // Allow login and registration without authentication
+                    .anyRequest().authenticated()  // All other endpoints need to be authenticated
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);  // Add JWT authentication filter
 
         return http.build();
     }

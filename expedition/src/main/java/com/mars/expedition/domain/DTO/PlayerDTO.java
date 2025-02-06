@@ -15,7 +15,8 @@ public class PlayerDTO {
     @Email
     private String email;
     @NotNull(message = "Password can not be null.")
-    @JsonIgnore
+    // @JsonIgnore
+    @NotNull
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+.<>-]).{8,16}$")
     private String password;
 }
