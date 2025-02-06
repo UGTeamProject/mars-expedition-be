@@ -2,8 +2,11 @@ package com.mars.expedition.services;
 
 
 import com.mars.expedition.domain.DTO.GameSessionDTO;
+import com.mars.expedition.domain.DTO.PlayerDTO;
 import com.mars.expedition.domain.model.GameSession;
+import com.mars.expedition.domain.model.Player;
 import com.mars.expedition.repository.GameSessionRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,10 +31,26 @@ public class GameSessionService {
         }
         return Optional.empty();
     }
-    public void deleteGameSession(Long id ) {
-        gameSessionRepository.deleteById(id);
+
+    @Transactional
+    public Optional<GameSessionDTO> updateGameSession(Long id, GameSessionDTO gameSessionDTO){
+        Optional<GameSession> existingGameSession = gameSessionRepository.findById(id);
+        if (existingGameSession.isPresent()) {
+            GameSession gameSession = existingGameSession.get();
+            gameSession.setGameState(gameSessionDTO.getGameState());
+            return Optional.of(convertEntityToDTO(gameSession));
+        }
+        return Optional.empty();
     }
-    public List<GameSessionDTO> getAll() {
+    public Optional<GameSessionDTO> deleteGameSession(Long id) {
+        Optional<GameSession> optionalGameSession = gameSessionRepository.findById(id);
+        if (optionalGameSession.isPresent()) {
+            gameSessionRepository.deleteById(id);
+            GameSessionDTO gameSessionDTO = convertEntityToDTO(optionalGameSession.get());
+            return Optional.of(gameSessionDTO);
+        }
+        return Optional.empty();
+    }    public List<GameSessionDTO> getAll() {
         Iterable<GameSession> allGameSessions = gameSessionRepository.findAll();
         return StreamSupport.stream(allGameSessions.spliterator(),false)
                 .map(this::convertEntityToDTO).toList();
