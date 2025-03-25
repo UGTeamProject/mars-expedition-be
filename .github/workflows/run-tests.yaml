@@ -45,7 +45,7 @@ jobs:
 
       - name: Check PostgreSQL Connection
         run: |
-          PGPASSWORD=admin psql -h localhost -U admin -d db -c '\l'
+          PGPASSWORD=admin psql -h localhost -U admin -d db -c 'SELECT datname FROM pg_database;'
 
       - name: Run tests
         env:
