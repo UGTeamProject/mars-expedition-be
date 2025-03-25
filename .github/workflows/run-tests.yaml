@@ -31,32 +31,13 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Print all environment variables
-        run: env
-
-      - name: Wait for PostgreSQL to be healthy
-        run: |
-          for i in {1..30}; do
-            pg_isready -h localhost -p 5432 -U admin && exit 0
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
-          echo "PostgreSQL did not become healthy in time" && exit 1
-
-      - name: Check PostgreSQL Connection
-        run: |
-          PGPASSWORD=admin psql -h localhost -U admin -d db -c 'SELECT datname FROM pg_database;'
-
       - name: Run tests
         env:
           SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/db
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: admin
         working-directory: ./expedition
-        run: |
-          echo "Running tests with environment variables:"
-          env | grep SPRING_
-          ./gradlew test --info
+        run: ./gradlew test
 
       - name: Upload Test Results
         if: always()
