@@ -37,7 +37,7 @@ jobs:
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: admin
         working-directory: ./expedition
-        run: ./gradlew test
+        run: ./gradlew test -Dspring.datasource.url=$SPRING_DATASOURCE_URL -Dspring.datasource.username=$SPRING_DATASOURCE_USERNAME -Dspring.datasource.password=$SPRING_DATASOURCE_PASSWORD
 
 
       - name: Upload Test Results
