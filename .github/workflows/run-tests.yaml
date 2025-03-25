@@ -49,7 +49,7 @@ jobs:
 
       - name: Run tests
         env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/db
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: admin
         working-directory: ./expedition
