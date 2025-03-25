@@ -1,6 +1,6 @@
 name: Run Tests
 
-on: [ push, pull_request ]
+on: [ push ]
 
 jobs:
   build:
@@ -45,6 +45,9 @@ jobs:
           POSTGRES_PASSWORD: admin
           POSTGRES_DB: db
           DB_PORT: 5432
+          SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: admin
         working-directory: ./expedition
         run: ./gradlew test
 
