@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     services:
-      postgres_db:
+      db:
         image: postgres:latest
         ports:
           - 5432/tcp
@@ -30,6 +30,13 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+
+      - name: Print environment variables
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
+          SPRING_DATASOURCE_USERNAME: admin
+          SPRING_DATASOURCE_PASSWORD: admin
+        run: printenv | grep SPRING_
 
       - name: Run tests
         env:
