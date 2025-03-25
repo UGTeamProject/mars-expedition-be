@@ -10,7 +10,7 @@ jobs:
       db:
         image: postgres:latest
         ports:
-          - 5432/tcp
+          - 5432:5432
         env:
           POSTGRES_USER: admin
           POSTGRES_PASSWORD: admin
@@ -31,12 +31,21 @@ jobs:
           distribution: 'temurin'
           java-version: '21'
 
-      - name: Print environment variables
-        env:
-          SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/db
-          SPRING_DATASOURCE_USERNAME: admin
-          SPRING_DATASOURCE_PASSWORD: admin
-        run: printenv | grep SPRING_
+      - name: Print all environment variables
+        run: env
+
+      - name: Wait for PostgreSQL to be healthy
+        run: |
+          for i in {1..30}; do
+            pg_isready -h localhost -p 5432 -U admin && exit 0
+            echo "Waiting for PostgreSQL..."
+            sleep 2
+          done
+          echo "PostgreSQL did not become healthy in time" && exit 1
+
+      - name: Check PostgreSQL Connection
+        run: |
+          PGPASSWORD=admin psql -h localhost -U admin -d db -c '\l'
 
       - name: Run tests
         env:
@@ -44,8 +53,10 @@ jobs:
           SPRING_DATASOURCE_USERNAME: admin
           SPRING_DATASOURCE_PASSWORD: admin
         working-directory: ./expedition
-        run: ./gradlew test -Dspring.datasource.url=$SPRING_DATASOURCE_URL -Dspring.datasource.username=$SPRING_DATASOURCE_USERNAME -Dspring.datasource.password=$SPRING_DATASOURCE_PASSWORD
-
+        run: |
+          echo "Running tests with environment variables:"
+          env | grep SPRING_
+          ./gradlew test --info
 
       - name: Upload Test Results
         if: always()
