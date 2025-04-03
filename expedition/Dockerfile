@@ -5,7 +5,7 @@ WORKDIR /app
 COPY build.gradle.kts settings.gradle.kts ./
 COPY src ./src
 
-RUN gradle assemble
+RUN gradle clean assemble
 
 FROM openjdk:21-jdk
 
@@ -15,4 +15,4 @@ COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD java -jar app.jar
