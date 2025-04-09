@@ -67,21 +67,18 @@ public class PlayerController {
     @PostMapping("/{id}")
     ResponseEntity<PlayerDTO>updatePlayer(@PathVariable Long id,@RequestBody PlayerDTO playerDTO) {
         UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        String currentUsername = currentUser.getUsername(); // Assuming username is the unique identifier
-        // Find the player by id, assuming the id field maps to the player in the DB
+        String currentUsername = currentUser.getUsername();
         Optional<PlayerDTO> playerOptional = playerService.findPlayerById(id);
 
         if (playerOptional.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Player not found
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         PlayerDTO player = playerOptional.get();
 
-        // Check if the username in the request matches the current authenticated user's username
         if (!player.getUsername().equals(currentUsername)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN); // User is not allowed to update this player
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
-        // Now, update the player
         Optional<PlayerDTO> updatedPlayer = playerService.updatePlayer(id, playerDTO);
 
         return updatedPlayer.map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
