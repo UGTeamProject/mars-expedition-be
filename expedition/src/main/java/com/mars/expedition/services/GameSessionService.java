@@ -2,67 +2,51 @@ package com.mars.expedition.services;
 
 
 import com.mars.expedition.domain.DTO.GameSessionDTO;
-import com.mars.expedition.domain.DTO.PlayerDTO;
 import com.mars.expedition.domain.model.GameSession;
-import com.mars.expedition.domain.model.Player;
 import com.mars.expedition.repository.GameSessionRepository;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @Service
+@RequiredArgsConstructor
 public class GameSessionService {
     private final GameSessionRepository gameSessionRepository;
 
-    public GameSessionService(GameSessionRepository gameSessionRepository) {this.gameSessionRepository = gameSessionRepository;}
-
-    public GameSessionDTO addGameSession(GameSessionDTO gameSessionDTO) {
-        GameSession gameSession  = convertDTOToEntity(gameSessionDTO);
-        return convertEntityToDTO(gameSessionRepository.save(gameSession));
+    public Optional<GameSessionDTO> getGameSession(String userId) {
+        Optional<GameSession> session = gameSessionRepository.findByUserId(userId);
+        return session.map(this::convertEntityToDTO);
     }
-    public Optional<GameSessionDTO> findGameSessionById(Long id) {
-        Optional<GameSession> optionalGameSession = gameSessionRepository.findById(id);
-        if (optionalGameSession.isPresent()) {
-            GameSessionDTO gameSessionDTO = convertEntityToDTO(optionalGameSession.get());
-            return Optional.of(gameSessionDTO);
-        }
-        return Optional.empty();
+
+    public GameSessionDTO addGameSession(String userId) {
+        GameSession gameSession  = new GameSession(userId, "{}");
+        return convertEntityToDTO(gameSessionRepository.save(gameSession));
     }
 
     @Transactional
-    public Optional<GameSessionDTO> updateGameSession(Long id, GameSessionDTO gameSessionDTO){
-        Optional<GameSession> existingGameSession = gameSessionRepository.findById(id);
+    public Optional<GameSessionDTO> updateGameSession(String userId, String gameState){
+        Optional<GameSession> existingGameSession = gameSessionRepository.findByUserId(userId);
+
         if (existingGameSession.isPresent()) {
             GameSession gameSession = existingGameSession.get();
-            gameSession.setGameState(gameSessionDTO.getGameState());
+            gameSession.setGameState(gameState);
+
+            gameSessionRepository.save(gameSession);
+
             return Optional.of(convertEntityToDTO(gameSession));
+        } else {
+            return Optional.empty();
         }
-        return Optional.empty();
-    }
-    public Optional<GameSessionDTO> deleteGameSession(Long id) {
-        Optional<GameSession> optionalGameSession = gameSessionRepository.findById(id);
-        if (optionalGameSession.isPresent()) {
-            gameSessionRepository.deleteById(id);
-            GameSessionDTO gameSessionDTO = convertEntityToDTO(optionalGameSession.get());
-            return Optional.of(gameSessionDTO);
-        }
-        return Optional.empty();
-    }    public List<GameSessionDTO> getAll() {
-        Iterable<GameSession> allGameSessions = gameSessionRepository.findAll();
-        return StreamSupport.stream(allGameSessions.spliterator(),false)
-                .map(this::convertEntityToDTO).toList();
     }
 
-    public GameSession convertDTOToEntity(GameSessionDTO gameSessionDTO) {
-        return new GameSession(gameSessionDTO.getGameState());
+    public void deleteGameSession(String userId) {
+        Optional<GameSession> optionalGameSession = gameSessionRepository.findByUserId(userId);
+        optionalGameSession.ifPresent(gameSession -> gameSessionRepository.deleteById(gameSession.getId()));
     }
+
     public GameSessionDTO convertEntityToDTO(GameSession gameSession) {
-        GameSessionDTO gameSessionDTO = new GameSessionDTO();
-        gameSessionDTO.setId(gameSession.getId());
-        gameSessionDTO.setGameState(gameSession.getGameState());
-        return  gameSessionDTO;
+        return new GameSessionDTO(gameSession.getId(), gameSession.getUserId(), gameSession.getGameState());
     }
 }
