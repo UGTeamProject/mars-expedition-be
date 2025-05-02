@@ -1,6 +1,5 @@
 package com.mars.expedition.services;
 
-
 import com.mars.expedition.domain.DTO.GameSessionDTO;
 import com.mars.expedition.domain.model.GameSession;
 import com.mars.expedition.repository.GameSessionRepository;
@@ -21,7 +20,7 @@ public class GameSessionService {
     }
 
     public GameSessionDTO addGameSession(String userId) {
-        GameSession gameSession  = new GameSession(userId, "{}");
+        GameSession gameSession  = new GameSession(userId);
         return convertEntityToDTO(gameSessionRepository.save(gameSession));
     }
 

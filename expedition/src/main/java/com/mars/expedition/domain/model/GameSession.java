@@ -1,7 +1,6 @@
 package com.mars.expedition.domain.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,10 +13,10 @@ public class GameSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userId;
-    private String gameState;
+    private String gameState = "{}";
 
-    public GameSession(String gameState) {
-        this.gameState = gameState;
+    public GameSession(String userId) {
+        this.userId = userId;
     }
 
     public GameSession(String userId, String gameState) {
