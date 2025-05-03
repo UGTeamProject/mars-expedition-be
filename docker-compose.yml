@@ -11,7 +11,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
 
   backend:
     build:
@@ -33,10 +33,11 @@ services:
       - .env
     ports:
       - "8080:8080"
-    command: start-dev
+    command: start-dev --import-realm --features=scripts
     networks:
       - expedition_backend
     volumes:
+      - ./keycloak:/opt/keycloak/data/import
       - keycloak_data:/opt/keycloak/data
     depends_on:
       - db
