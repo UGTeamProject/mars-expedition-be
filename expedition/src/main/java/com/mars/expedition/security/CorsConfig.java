@@ -1,4 +1,4 @@
-package com.mars.expedition.controllers;
+package com.mars.expedition.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,7 +12,7 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOrigin("http://localhost:8081");
+        config.addAllowedOrigin("http://localhost:8082");
         config.addAllowedHeader("*"); 
         config.addAllowedMethod("*");
         config.setAllowCredentials(true);

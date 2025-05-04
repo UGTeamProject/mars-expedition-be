@@ -6,22 +6,45 @@ services:
       - "${DB_PORT}:5432"
     env_file:
       - .env
+    networks:
+      - expedition_backend
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: "sh -c 'pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"
 
   backend:
     build:
       context: ./expedition
     container_name: gradle-backend
     ports:
-      - "${BACKEND_PORT}:8080"
+      - "${BACKEND_PORT}:8081"
     env_file:
       - .env
+    networks:
+      - expedition_backend
     depends_on:
       db:
         condition: service_healthy
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    command: start-dev --import-realm --features=scripts
+    networks:
+      - expedition_backend
+    volumes:
+      - ./keycloak:/opt/keycloak/data/import
+      - keycloak_data:/opt/keycloak/data
+    depends_on:
+      - db
+
+networks:
+  expedition_backend:
+
 volumes:
   postgres_data:
+  keycloak_data:

@@ -12,9 +12,15 @@ public class GameSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String gameState;
+    private String userId;
+    private String gameState = "{}";
 
-    public GameSession(String gameState) {
+    public GameSession(String userId) {
+        this.userId = userId;
+    }
+
+    public GameSession(String userId, String gameState) {
+        this.userId = userId;
         this.gameState = gameState;
     }
 }
