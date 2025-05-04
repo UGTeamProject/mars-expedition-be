@@ -1,4 +1,4 @@
-package com.mars.expedition.controllers;
+package com.mars.expedition.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
