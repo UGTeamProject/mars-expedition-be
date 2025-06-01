@@ -28,6 +28,6 @@ public class SecurityConfig {
 
     @Bean
     public JwtDecoder jwtDecoder() {
-        return JwtDecoders.fromIssuerLocation("http://localhost:8080/realms/mars");
+        return JwtDecoders.fromIssuerLocation("http://keycloak:8080/realms/mars");
     }
 }
