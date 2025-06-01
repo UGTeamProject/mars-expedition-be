@@ -13,6 +13,7 @@ public class GameSession {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String userId;
+    @Column(columnDefinition = "TEXT")
     private String gameState = "{}";
 
     public GameSession(String userId) {
