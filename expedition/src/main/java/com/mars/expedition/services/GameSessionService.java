@@ -20,12 +20,16 @@ public class GameSessionService {
     }
 
     public GameSessionDTO addGameSession(String userId) {
-        GameSession gameSession  = new GameSession(userId);
+        Optional<GameSession> existingGameSession = gameSessionRepository.findByUserId(userId);
+        if (existingGameSession.isPresent()) {
+            return convertEntityToDTO(existingGameSession.get());
+        }
+        GameSession gameSession = new GameSession(userId);
         return convertEntityToDTO(gameSessionRepository.save(gameSession));
     }
 
     @Transactional
-    public Optional<GameSessionDTO> updateGameSession(String userId, String gameState){
+    public Optional<GameSessionDTO> updateGameSession(String userId, String gameState) {
         Optional<GameSession> existingGameSession = gameSessionRepository.findByUserId(userId);
 
         if (existingGameSession.isPresent()) {
