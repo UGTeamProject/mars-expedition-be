@@ -20,111 +20,143 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-//@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class GameSessionServiceTests {
 
-	@Mock
-	private GameSessionRepository gameSessionRepository;
-	@InjectMocks
-	private GameSessionService gameSessionService;
-
-//	@Test
-//	void contextLoads() {
-//	}
+    @Mock
+    private GameSessionRepository gameSessionRepository;
+    @InjectMocks
+    private GameSessionService gameSessionService;
 
 
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForGetGameSession")
+    void TestGetGameSession(String userId) {
 
-	@ParameterizedTest
-	@MethodSource("provideGameSessionDataForAddGameSession")
-	void TestAddGameSession(String userId) {
-		 GameSession expectedGameSession = new GameSession(userId);
+        GameSession expectedGameSession = new GameSession(userId);
 
-		 when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
-		 when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(expectedGameSession));
 
-		 GameSessionDTO savedGameSession = gameSessionService.addGameSession(userId);
-		 Assertions.assertEquals(savedGameSession.userId(),userId);
-//		PlayerDTO savedPlayer = playerService.addPlayer(testPlayerDTO);
-//		assertNotNull(savedPlayer);
-	}
+        GameSessionDTO foundGameSession = gameSessionService.getGameSession(userId).get();
 
-	@ParameterizedTest
-	@MethodSource("provideGameSessionDataForUpdateGameSession")
-	void TestUpdateGameSession(String userId,String oldState,String newState) {
+        Assertions.assertEquals(foundGameSession.userId(), userId);
+    }
 
-		GameSession oldGameSession = new GameSession(userId,oldState);
-		GameSession expectedGameSession = new GameSession(userId,newState);
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForGetGameSessionWithError")
+    void TestGetGameSessionWithError(String userId) {
 
-		when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(oldGameSession));
-		when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
 
-		GameSessionDTO updatedGameSession = gameSessionService.updateGameSession(userId,newState).get();
+        Optional<GameSessionDTO> foundGameSession = gameSessionService.getGameSession(userId);
 
-		Assertions.assertEquals(updatedGameSession.userId(),userId);
-		Assertions.assertEquals(updatedGameSession.gameState(),newState);
-//		PlayerDTO savedPlayer = playerService.addPlayer(testPlayerDTO);
-//		assertNotNull(savedPlayer);
-	}
+        Assertions.assertTrue(foundGameSession.isEmpty());
+    }
 
-	@ParameterizedTest
-	@MethodSource("provideGameSessionDataForDeleteGameSession")
-	void TestDeleteGameSession(String userId ) {
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForAddGameSession")
+    void TestAddGameSession(String userId) {
+        GameSession expectedGameSession = new GameSession(userId);
 
-		GameSession existingGameSession = new GameSession(userId);
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+        when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
 
-		when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(existingGameSession));
-//		when(gameSessionRepository.deleteById(anyLong())).then(doNothing());
-		Assertions.assertDoesNotThrow(() -> {gameSessionService.deleteGameSession(userId);});
-//		GameSession oldGameSession = new GameSession(userId,oldState);
-//		GameSession expectedGameSession = new GameSession(userId,newState);
-//
-//		when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(oldGameSession));
-//		when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
-//
-//		GameSessionDTO updatedGameSession = gameSessionService.updateGameSession(userId,newState).get();
+        GameSessionDTO savedGameSession = gameSessionService.addGameSession(userId);
+        Assertions.assertEquals(savedGameSession.userId(), userId);
+    }
 
-//		Assertions.assertEquals(updatedGameSession.userId(),userId);
-//		Assertions.assertEquals(updatedGameSession.gameState(),newState);
-//		PlayerDTO savedPlayer = playerService.addPlayer(testPlayerDTO);
-//		assertNotNull(savedPlayer);
-	}
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForUpdateGameSession")
+    void TestUpdateGameSession(String userId, String oldState, String newState) {
 
+        GameSession oldGameSession = new GameSession(userId, oldState);
+        GameSession expectedGameSession = new GameSession(userId, newState);
 
-	private static Stream<Arguments> provideGameSessionDataForAddGameSession() {
-		return Stream.of(
-				org.junit.jupiter.params.provider.Arguments.of("1"),
-				org.junit.jupiter.params.provider.Arguments.of("2"),
-				org.junit.jupiter.params.provider.Arguments.of("3"),
-				org.junit.jupiter.params.provider.Arguments.of("4")
-		);
-	}
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(oldGameSession));
+        when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
 
-	private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForUpdateGameSession() {
-		return Stream.of(
-				org.junit.jupiter.params.provider.Arguments.of("1", "{test:1}", "{test:1new}"),
-				org.junit.jupiter.params.provider.Arguments.of("2", "{test:2}", "{test:2new}"),
-				org.junit.jupiter.params.provider.Arguments.of("3", "{test:3}", "{test:3new}"),
-				org.junit.jupiter.params.provider.Arguments.of("4", "{test:4}", "{test:4new}")
-		);
-	}
+        GameSessionDTO updatedGameSession = gameSessionService.updateGameSession(userId, newState).get();
 
-	private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForDeleteGameSession() {
-		return Stream.of(
-				org.junit.jupiter.params.provider.Arguments.of("1"),
-				org.junit.jupiter.params.provider.Arguments.of("2"),
-				org.junit.jupiter.params.provider.Arguments.of("3"),
-				org.junit.jupiter.params.provider.Arguments.of("4")
-		);
-	}
+        Assertions.assertEquals(updatedGameSession.userId(), userId);
+        Assertions.assertEquals(updatedGameSession.gameState(), newState);
+    }
 
-	private static Stream<Arguments> providePlayerDataForDeletePlayer() {
-		return Stream.of(
-				org.junit.jupiter.params.provider.Arguments.of("TestPlayer", "test@email.com", "Xk8#Df9$Tz1@Lp"),
-				org.junit.jupiter.params.provider.Arguments.of("TestPlayer2", "test2@email.com", "Password123"),
-				org.junit.jupiter.params.provider.Arguments.of("TestPlayer3", "test3@email.com", "Password1234"),
-				org.junit.jupiter.params.provider.Arguments.of("TestPlayer4", "test4@email.com", "Password12345")
-		);
-	}
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForUpdateGameSessionWithError")
+    void TestUpdateGameSessionWithError(String userId, String oldState, String newState) {
+
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+
+        Optional<GameSessionDTO> updatedGameSession = gameSessionService.updateGameSession(userId, newState);
+
+        Assertions.assertTrue(updatedGameSession.isEmpty());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideGameSessionDataForDeleteGameSession")
+    void TestDeleteGameSession(String userId) {
+
+        GameSession existingGameSession = new GameSession(userId);
+
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.of(existingGameSession));
+
+        Assertions.assertDoesNotThrow(() -> {
+            gameSessionService.deleteGameSession(userId);
+        });
+    }
+
+    private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForGetGameSession() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1"),
+                org.junit.jupiter.params.provider.Arguments.of("2"),
+                org.junit.jupiter.params.provider.Arguments.of("3"),
+                org.junit.jupiter.params.provider.Arguments.of("4")
+        );
+    }
+
+    private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForGetGameSessionWithError() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1"),
+                org.junit.jupiter.params.provider.Arguments.of("2"),
+                org.junit.jupiter.params.provider.Arguments.of("3"),
+                org.junit.jupiter.params.provider.Arguments.of("4")
+        );
+    }
+
+    private static Stream<Arguments> provideGameSessionDataForAddGameSession() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1"),
+                org.junit.jupiter.params.provider.Arguments.of("2"),
+                org.junit.jupiter.params.provider.Arguments.of("3"),
+                org.junit.jupiter.params.provider.Arguments.of("4")
+        );
+    }
+
+    private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForUpdateGameSession() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1", "{test:1}", "{test:1new}"),
+                org.junit.jupiter.params.provider.Arguments.of("2", "{test:2}", "{test:2new}"),
+                org.junit.jupiter.params.provider.Arguments.of("3", "{test:3}", "{test:3new}"),
+                org.junit.jupiter.params.provider.Arguments.of("4", "{test:4}", "{test:4new}")
+        );
+    }
+
+    private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForUpdateGameSessionWithError() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1", "{test:1}", "{test:1new}"),
+                org.junit.jupiter.params.provider.Arguments.of("2", "{test:2}", "{test:2new}"),
+                org.junit.jupiter.params.provider.Arguments.of("3", "{test:3}", "{test:3new}"),
+                org.junit.jupiter.params.provider.Arguments.of("4", "{test:4}", "{test:4new}")
+        );
+    }
+
+    private static Stream<org.junit.jupiter.params.provider.Arguments> provideGameSessionDataForDeleteGameSession() {
+        return Stream.of(
+                org.junit.jupiter.params.provider.Arguments.of("1"),
+                org.junit.jupiter.params.provider.Arguments.of("2"),
+                org.junit.jupiter.params.provider.Arguments.of("3"),
+                org.junit.jupiter.params.provider.Arguments.of("4")
+        );
+    }
 
 }
