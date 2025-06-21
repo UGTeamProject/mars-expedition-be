@@ -25,13 +25,13 @@ class GameSessionServiceTests {
 
     @Mock
     private GameSessionRepository gameSessionRepository;
+
     @InjectMocks
     private GameSessionService gameSessionService;
 
-
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForGetGameSession")
-    void TestGetGameSession(String userId) {
+    void testGetGameSession(String userId) {
 
         GameSession expectedGameSession = new GameSession(userId);
 
@@ -44,7 +44,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForGetGameSessionWithError")
-    void TestGetGameSessionWithError(String userId) {
+    void testGetGameSessionWithError(String userId) {
 
         when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
 
@@ -55,7 +55,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForAddGameSession")
-    void TestAddGameSession(String userId) {
+    void testAddGameSession(String userId) {
         GameSession expectedGameSession = new GameSession(userId);
 
         when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
@@ -67,7 +67,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForUpdateGameSession")
-    void TestUpdateGameSession(String userId, String oldState, String newState) {
+    void testUpdateGameSession(String userId, String oldState, String newState) {
 
         GameSession oldGameSession = new GameSession(userId, oldState);
         GameSession expectedGameSession = new GameSession(userId, newState);
@@ -83,7 +83,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForUpdateGameSessionWithError")
-    void TestUpdateGameSessionWithError(String userId, String oldState, String newState) {
+    void testUpdateGameSessionWithError(String userId, String oldState, String newState) {
 
         when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
 
@@ -94,7 +94,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForDeleteGameSession")
-    void TestDeleteGameSession(String userId) {
+    void testDeleteGameSession(String userId) {
 
         GameSession existingGameSession = new GameSession(userId);
 
@@ -158,5 +158,4 @@ class GameSessionServiceTests {
                 org.junit.jupiter.params.provider.Arguments.of("4")
         );
     }
-
 }
