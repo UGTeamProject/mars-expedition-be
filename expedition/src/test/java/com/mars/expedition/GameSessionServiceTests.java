@@ -30,6 +30,18 @@ class GameSessionServiceTests {
     private GameSessionService gameSessionService;
 
     @ParameterizedTest
+    @MethodSource("provideGameSessionDataForAddGameSession")
+    void testAddGameSession(String userId) {
+        GameSession expectedGameSession = new GameSession(userId);
+
+        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
+        when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
+
+        GameSessionDTO savedGameSession = gameSessionService.addGameSession(userId);
+        Assertions.assertEquals(savedGameSession.userId(), userId);
+    }
+
+    @ParameterizedTest
     @MethodSource("provideGameSessionDataForGetGameSession")
     void testGetGameSession(String userId) {
 
@@ -54,18 +66,6 @@ class GameSessionServiceTests {
     }
 
     @ParameterizedTest
-    @MethodSource("provideGameSessionDataForAddGameSession")
-    void testAddGameSession(String userId) {
-        GameSession expectedGameSession = new GameSession(userId);
-
-        when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
-        when(gameSessionRepository.save(any(GameSession.class))).thenReturn(expectedGameSession);
-
-        GameSessionDTO savedGameSession = gameSessionService.addGameSession(userId);
-        Assertions.assertEquals(savedGameSession.userId(), userId);
-    }
-
-    @ParameterizedTest
     @MethodSource("provideGameSessionDataForUpdateGameSession")
     void testUpdateGameSession(String userId, String oldState, String newState) {
 
@@ -83,7 +83,7 @@ class GameSessionServiceTests {
 
     @ParameterizedTest
     @MethodSource("provideGameSessionDataForUpdateGameSessionWithError")
-    void testUpdateGameSessionWithError(String userId, String oldState, String newState) {
+    void testUpdateGameSessionWithError(String userId, String newState) {
 
         when(gameSessionRepository.findByUserId(anyString())).thenReturn(Optional.empty());
 
